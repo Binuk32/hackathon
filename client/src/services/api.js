@@ -1,4 +1,5 @@
-﻿const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+﻿console.log('API_BASE_URL =', import.meta.env.VITE_API_BASE_URL);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://indunilrents.onrender.com/api';
 
 export const fetchWithAuth = async (endpoint, options = {}) => {
     const storedUser = JSON.parse(localStorage.getItem('indunil_admin'));

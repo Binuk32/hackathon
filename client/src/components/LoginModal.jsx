@@ -26,9 +26,9 @@ export default function LoginModal({ isOpen, onClose }) {
 
         try {
             // Priority: Environment Variable -> Render Hosted Backend -> Localhost Fallback
-            const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://indunilrents.onrender.com';
+            const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://indunilrents.onrender.com/api';
 
-            const response = await fetch(`${API_BASE}/api/auth/login`, {
+            const response = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
