@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext.jsx';
 import { fetchTools } from '../services/toolService';
 import ToolCard from '../components/ToolCard.jsx';
 import AddToolModal from '../components/AddToolModal.jsx';
-import RentModal from '../components/RentModal.jsx'; // 1. Import RentModal
+import RentModal from '../components/RentModal.jsx';
 
 export default function AdminDashboard() {
     const { user, logout } = useContext(AuthContext);
@@ -15,7 +15,6 @@ export default function AdminDashboard() {
     const [error, setError] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-    // 2. Add state for rental modal and selected tool
     const [selectedToolForRent, setSelectedToolForRent] = useState(null);
     const [isRentModalOpen, setIsRentModalOpen] = useState(false);
 
@@ -52,16 +51,14 @@ export default function AdminDashboard() {
         setTimeout(() => setToastMessage(''), 4000);
     };
 
-    // 3. Handle opening rental modal
     const handleOpenRentModal = (tool) => {
         setSelectedToolForRent(tool);
         setIsRentModalOpen(true);
     };
 
-    // 4. Handle rental success callback
     const handleRentSuccess = (message) => {
         setToastMessage(message || 'Rental created successfully!');
-        loadTools(); // Refresh stock numbers
+        loadTools();
         setTimeout(() => setToastMessage(''), 4000);
     };
 
@@ -122,12 +119,22 @@ export default function AdminDashboard() {
                         <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Tools & Equipment</h2>
                         <p className="text-slate-500 text-sm mt-1">Manage inventory or click a card to issue a rental.</p>
                     </div>
-                    <button
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2"
-                    >
-                        + Add New Tool
-                    </button>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/admin/rentals')}
+                            className="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-xs flex items-center justify-center gap-2"
+                        >
+                            📋 View Rental History
+                        </button>
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                        >
+                            + Add New Tool
+                        </button>
+                    </div>
                 </div>
 
                 {/* Metrics */}
@@ -150,7 +157,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* Grid display with onRent prop attached */}
+                {/* Grid display */}
                 {!loading && !error && tools.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {tools.map((tool) => (
@@ -171,7 +178,6 @@ export default function AdminDashboard() {
                 onSuccess={handleAddToolSuccess}
             />
 
-            {/* 5. Render RentModal */}
             <RentModal
                 isOpen={isRentModalOpen}
                 tool={selectedToolForRent}
