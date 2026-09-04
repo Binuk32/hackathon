@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 
-export default function ToolCard({ tool }) {
+export default function ToolCard({ tool, onRent }) {
     const [imgError, setImgError] = useState(false);
 
     const { name, description, image, totalQuantity, availableQuantity } = tool;
+    const isAvailable = availableQuantity > 0;
 
-    // Status logic per specification:
-    // availableQuantity === 0 -> Unavailable
-    // availableQuantity > 0 && availableQuantity <= 3 -> Low Stock
-    // availableQuantity > 3 -> Available
     let statusLabel = 'Available';
     let badgeClasses = 'bg-emerald-50 text-emerald-700 border-emerald-200';
     let dotColor = 'bg-emerald-500';
@@ -25,8 +22,19 @@ export default function ToolCard({ tool }) {
 
     const percentage = totalQuantity > 0 ? Math.round((availableQuantity / totalQuantity) * 100) : 0;
 
+    const handleCardClick = () => {
+        if (isAvailable && onRent) {
+            onRent(tool);
+        }
+    };
+
     return (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group">
+        <div
+            onClick={handleCardClick}
+            className={`bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between group ${
+                isAvailable ? 'cursor-pointer' : 'opacity-70 cursor-not-allowed'
+            }`}
+        >
             {/* Image Container */}
             <div className="relative h-48 bg-slate-100 flex items-center justify-center overflow-hidden border-b border-slate-100">
                 {image && !imgError ? (
@@ -65,28 +73,47 @@ export default function ToolCard({ tool }) {
                     </p>
                 </div>
 
-                {/* Quantity & Progress */}
-                <div className="pt-3 border-t border-slate-100">
-                    <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="font-semibold text-slate-500">Availability:</span>
-                        <span className="font-extrabold text-slate-900 text-sm">
-                            {availableQuantity} <span className="text-slate-400 font-normal text-xs">/ {totalQuantity}</span>
-                        </span>
+                <div>
+                    {/* Quantity & Progress */}
+                    <div className="pt-3 border-t border-slate-100 mb-4">
+                        <div className="flex items-center justify-between text-xs mb-2">
+                            <span className="font-semibold text-slate-500">Availability:</span>
+                            <span className="font-extrabold text-slate-900 text-sm">
+                                {availableQuantity} <span className="text-slate-400 font-normal text-xs">/ {totalQuantity}</span>
+                            </span>
+                        </div>
+
+                        {/* Visual Progress Bar */}
+                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full transition-all duration-500 ${
+                                    availableQuantity === 0
+                                        ? 'bg-rose-500'
+                                        : availableQuantity <= 3
+                                            ? 'bg-amber-500'
+                                            : 'bg-emerald-500'
+                                }`}
+                                style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
+                            ></div>
+                        </div>
                     </div>
 
-                    {/* Visual Progress Bar */}
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div
-                            className={`h-full transition-all duration-500 ${
-                                availableQuantity === 0
-                                    ? 'bg-rose-500'
-                                    : availableQuantity <= 3
-                                        ? 'bg-amber-500'
-                                        : 'bg-emerald-500'
-                            }`}
-                            style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
-                        ></div>
-                    </div>
+                    {/* Rent Action Button */}
+                    <button
+                        type="button"
+                        disabled={!isAvailable}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleCardClick();
+                        }}
+                        className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all ${
+                            isAvailable
+                                ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs group-hover:bg-sky-600'
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        }`}
+                    >
+                        {isAvailable ? 'Issue Rental' : 'Unavailable'}
+                    </button>
                 </div>
             </div>
         </div>
