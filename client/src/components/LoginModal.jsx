@@ -1,36 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LoginModal({ isOpen, onClose }) {
     const [loginUsername, setLoginUsername] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [loginMessage, setLoginMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const { login } = useContext(AuthContext);
 
     if (!isOpen) return null;
 
-    const handleLoginSubmit = (e) => {
+    const handleLoginSubmit = async (e) => {
         e.preventDefault();
+        setLoginMessage('');
+
         if (!loginUsername || !loginPassword) {
             setLoginMessage('Please enter both username and password.');
             return;
         }
-        if (loginUsername === 'admin' && loginPassword === 'admin123') {
+
+        setLoading(true);
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: loginUsername,
+                    password: loginPassword,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Invalid username or password.');
+            }
+
+            // Save token and user details in AuthContext + localStorage
+            login(data);
+
             setLoginMessage('Login successful! Redirecting to Inventory Dashboard...');
+
             setTimeout(() => {
-                onClose();
+                setLoading(false);
                 setLoginMessage('');
-            }, 1200);
-        } else {
-            setLoginMessage('Invalid credentials. (Hint: use admin / admin123)');
+                onClose();
+            }, 1000);
+        } catch (err) {
+            setLoading(false);
+            setLoginMessage(err.message);
         }
     };
 
     return (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={onClose}>
             <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl border border-slate-100 relative" onClick={(e) => e.stopPropagation()}>
-                <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-2xl leading-none">
+                <button
+                    onClick={onClose}
+                    className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-2xl leading-none"
+                    disabled={loading}
+                >
                     &times;
                 </button>
-                <h2 className="text-2xl font-extrabold mb-1 tracking-tight">Staff Portal</h2>
+                <h2 className="text-2xl font-extrabold mb-1 tracking-tight text-slate-900">Staff Portal</h2>
                 <p className="text-slate-500 text-sm mb-6">Log in to manage Indunil Hardware inventory & rentals</p>
 
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
@@ -43,6 +77,7 @@ export default function LoginModal({ isOpen, onClose }) {
                             placeholder="Enter staff username"
                             value={loginUsername}
                             onChange={(e) => setLoginUsername(e.target.value)}
+                            disabled={loading}
                             autoFocus
                         />
                     </div>
@@ -56,6 +91,7 @@ export default function LoginModal({ isOpen, onClose }) {
                             placeholder="Enter password"
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
+                            disabled={loading}
                         />
                     </div>
 
@@ -65,14 +101,13 @@ export default function LoginModal({ isOpen, onClose }) {
                         </p>
                     )}
 
-                    <button type="submit" className="w-full bg-slate-900 text-white font-bold rounded-lg py-3.5 mt-2 hover:bg-slate-800 transition-colors shadow-sm">
-                        Sign In to Dashboard
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-slate-900 text-white font-bold rounded-lg py-3.5 mt-2 hover:bg-slate-800 transition-colors shadow-sm disabled:opacity-50"
+                    >
+                        {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
                     </button>
-
-                    <div className="mt-6 bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 text-xs text-slate-500 text-center">
-                        <strong>Demo Credentials:</strong><br />
-                        Username: <code className="bg-slate-200 px-1 rounded text-slate-700">admin</code> | Password: <code className="bg-slate-200 px-1 rounded text-slate-700">admin123</code>
-                    </div>
                 </form>
             </div>
         </div>
