@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 export default function LoginModal({ isOpen, onClose }) {
@@ -8,11 +9,9 @@ export default function LoginModal({ isOpen, onClose }) {
     const [loading, setLoading] = useState(false);
 
     const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     if (!isOpen) return null;
-
-    // Pull base URL from client environment
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
@@ -26,7 +25,7 @@ export default function LoginModal({ isOpen, onClose }) {
         setLoading(true);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -50,7 +49,8 @@ export default function LoginModal({ isOpen, onClose }) {
                 setLoading(false);
                 setLoginMessage('');
                 onClose();
-            }, 1000);
+                navigate('/admin/dashboard');
+            }, 600);
         } catch (err) {
             setLoading(false);
             setLoginMessage(err.message);
