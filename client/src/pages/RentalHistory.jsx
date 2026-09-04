@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect, useContext } from 'react';
+import { fetchWithAuth } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext.jsx';
 
@@ -22,9 +23,7 @@ export default function RentalHistory() {
     const loadRentals = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/rentals', {
-                headers: getAuthHeaders(),
-            });
+            const response = await fetchWithAuth('/rentals');
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Failed to fetch rentals');
             setRentals(data || []);
@@ -46,9 +45,8 @@ export default function RentalHistory() {
     // Handle Return Action directly
     const handleReturn = async (rentalId) => {
         try {
-            const response = await fetch(`/api/rentals/${rentalId}/return`, {
+            const response = await fetchWithAuth(`/rentals/${rentalId}/return`, {
                 method: 'PUT',
-                headers: getAuthHeaders(),
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Return action failed');
