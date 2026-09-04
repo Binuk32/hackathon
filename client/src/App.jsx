@@ -2,9 +2,10 @@ import React, { useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/AdminDashboard';
+import RentalHistory from './pages/RentalHistory';
 import { AuthContext } from './context/AuthContext';
 
-// Protected Route Wrapper for Admin Dashboard
+// Protected Route Wrapper for Staff Pages
 const ProtectedAdminRoute = ({ children }) => {
     const { user } = useContext(AuthContext);
 
@@ -26,6 +27,15 @@ function App() {
                         element={
                             <ProtectedAdminRoute>
                                 <AdminDashboard />
+                            </ProtectedAdminRoute>
+                        }
+                    />
+                    {/* Updated path to /admin/rentals */}
+                    <Route
+                        path="/admin/rentals"
+                        element={
+                            <ProtectedAdminRoute>
+                                <RentalHistory />
                             </ProtectedAdminRoute>
                         }
                     />

@@ -24,6 +24,12 @@ const toolSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Available quantity is required'],
         min: [0, 'Quantity cannot be negative']
+    },
+    costPerDay: {
+        type: Number,
+        required: [true, 'Cost per day is required'],
+        min: [0, 'Cost cannot be negative'],
+        default: 0
     }
 }, { timestamps: true });
 
